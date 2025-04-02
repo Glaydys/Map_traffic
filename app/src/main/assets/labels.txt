@@ -1,0 +1,54 @@
+pedestrian_crossing
+Equal-level Intersection
+No Entry
+Right Turn Only
+Intersection
+Intersection with a non-priority road
+Dangerous Turn
+No Left Turn
+Bus Stop
+Roundabout
+No Stopping and No Parking
+U-Turn Allowed
+Lane Allocation
+No Left Turn for Motorcycles
+slow_down
+No Trucks Allowed
+Narrow Road on the Right
+No Passenger Cars and Trucks
+Height Limit
+No U-Turn
+No U-Turn and No Right Turn
+No Cars Allowed
+Narrow Road on the Left
+Uneven Road
+No Two or Three-wheeled Vehicles
+Customs Checkpoint
+Motorcycles Only
+Obstacle on the Road
+Children Present
+Trucks and Containers
+No Motorcycles Allowed
+Trucks Only
+Road with Surveillance Camera
+no_right_turn
+Double curve first to right
+No Containers Allowed
+No Left or Right Turn
+No Straight and Right Turn
+Intersection with T-Junction
+speed_limit_50
+speed_limit_60
+speed_limit_80
+speed_limit_40
+Left Turn
+Low Clearance
+Other Danger
+Go Straight
+No Parking
+Containers Only
+No U-Turn for Cars
+Level Crossing with Barriers
+No U-Turn and No Left Turn
+Right Turn Around
+Speed Bumps Ahead
