@@ -241,6 +241,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             } else {
                 editTextDestination.setText(place.name)
                 editTextDestination.setSelection(place.name.length)
+                editTextDestination.setSelection(place.name.length)
                 editTextDestination.clearFocus()
             }
             filteredList.clear()
@@ -255,9 +256,8 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
             override fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long) {
                 for (box in boundingBoxes) {
-//                    Log.d("Detector", "Nhận diện: ${box.clsName} - Độ tin cậy: ${box.cnf}")
+                    Log.d("Detector", "Nhận diện: ${box.clsName} - Độ tin cậy: ${box.cnf}")
 
-                    // Kiểm tra độ tin cậy lớn hơn 0.7
                     if (box.cnf > 0.7) {
                         val signType = box.clsName
                         val latitude = user_form_trafficsign.latitude
@@ -265,11 +265,10 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                         val markerKey = Triple(latitude, longitude, signType)
 
                         Log.d("Detector", "Nhận diện: $signType - Độ tin cậy: ${box.cnf} - $user_form_trafficsign")
-
-                        // Kiểm tra xem biển báo đã được vẽ chưa
                         if (!drawnMarkers.contains(markerKey)) {
                             showTrafficSignOnMap(latitude, longitude, signType)
                             drawnMarkers.add(markerKey)
+                            speakTrafficSign(signType)
                         }
                     }
                 }
@@ -298,7 +297,16 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             )
         }
     }
-
+    private fun speakTrafficSign(signType: String) {
+        val textToSpeak = when (signType) {
+            "speed_limit_50" -> "Giới hạn tốc độ 50 km/h"
+            "speed_limit_60" -> "Giới hạn tốc độ 60 km/h"
+            "slow_down" -> "Giảm tốc độ"
+            "no_right_turn" -> "Cấm rẽ phải"
+            else -> "Biển báo không xác định"
+        }
+        speakOut(textToSpeak)
+    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 123 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -694,13 +702,13 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             interval = 5000
             fastestInterval = 2000
-            numUpdates = 1  // Chỉ lấy một lần để tránh cập nhật liên tục
+            numUpdates = 1  
         }
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.locations.lastOrNull()?.let { location ->
                     updateUserLocation(location)
-                    fusedLocationClient.removeLocationUpdates(this) // Dừng cập nhật sau khi lấy được vị trí
+                    fusedLocationClient.removeLocationUpdates(this) 
                 }
             }
         }
