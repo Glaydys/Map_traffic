@@ -1,54 +1,54 @@
 pedestrian_crossing
-Equal-level Intersection
-No Entry
-Right Turn Only
-Intersection
-Intersection with a non-priority road
-Dangerous Turn
-No Left Turn
-Bus Stop
-Roundabout
-No Stopping and No Parking
-U-Turn Allowed
-Lane Allocation
-No Left Turn for Motorcycles
+equal-level_intersection
+no_entry
+right_turn_only
+intersection
+intersection_with_a_non-priority_road
+dangerous_turn
+no_left_turn
+bus_stop
+roundabout
+no_stopping_and_no_parking
+u_turn_allowed
+lane_allocation
+no_left_turn_for_motorcycles
 slow_down
-No Trucks Allowed
-Narrow Road on the Right
-No Passenger Cars and Trucks
-Height Limit
-No U-Turn
-No U-Turn and No Right Turn
-No Cars Allowed
-Narrow Road on the Left
-Uneven Road
-No Two or Three-wheeled Vehicles
-Customs Checkpoint
-Motorcycles Only
-Obstacle on the Road
-Children Present
-Trucks and Containers
-No Motorcycles Allowed
-Trucks Only
-Road with Surveillance Camera
+no_trucks_allowed
+narrow_road_on_the_right
+no_passenger_cars_and_trucks
+height_limit
+no_u_turn
+no_u_turn_and_no_right_turn
+no_cars_allowed
+narrow_road_on_the_left
+uneven_road
+no_two_or_three-wheeled_vehicles
+customs_checkpoint
+motorcycles_only
+obstacle_on_the_road
+children_present
+trucks_and_containers
+no_motorcycles_allowed
+trucks_only
+road_with_surveillance_camera
 no_right_turn
-Double curve first to right
-No Containers Allowed
-No Left or Right Turn
-No Straight and Right Turn
-Intersection with T-Junction
+double_curve_first_to_right
+no_containers_allowed
+no_left_or_right_turn
+no_straight_and_right_turn
+intersection_with_t_junction
 speed_limit_50
 speed_limit_60
 speed_limit_80
 speed_limit_40
-Left Turn
-Low Clearance
-Other Danger
-Go Straight
-No Parking
-Containers Only
-No U-Turn for Cars
-Level Crossing with Barriers
-No U-Turn and No Left Turn
-Right Turn Around
-Speed Bumps Ahead
+left_turn
+low_clearance
+other_danger
+go_straight
+no_parking
+containers_only
+no_u_turn_for_cars
+level_crossing_with_barriers
+no_u-turn_and_no_left_turn
+right_turn_around
+speed_bumps_ahead

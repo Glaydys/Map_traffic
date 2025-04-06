@@ -276,10 +276,38 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     fun showTrafficSignOnMap(signType: String) {
         runOnUiThread {
             val iconRes = when (signType) {
+                "pedestrian_crossing" -> R.drawable.pedestrian_crossing
+                "equal_level_intersection" -> R.drawable.equal_level_intersection
+                "no_entry" -> R.drawable.no_entry
+                "right_turn_only" -> R.drawable.right_turn_only
+                "intersection_with_a_non_priority_road" -> R.drawable.intersection_with_a_non_priority_road
+                "no_left_turn" -> R.drawable.no_left_turn
+                "roundabout" -> R.drawable.roundabout
+                "no_stopping_and_no_parking" -> R.drawable.no_stopping_and_no_parking
+                "u_turn_allowed" -> R.drawable.u_turn_allowed
+                "slow_down" -> R.drawable.slow_down
+                "no_trucks_allowed" -> R.drawable.no_trucks_allowed
+                "narrow_road_on_the_right" -> R.drawable.narrow_road_on_the_right
+                "no_u_turn" -> R.drawable.no_u_turn
+                "no_u_turn_and_no_right_turn" -> R.drawable.no_u_turn_and_no_right_turn
+                "no_cars_allowed" -> R.drawable.no_cars_allowed
+                "narrow_road_on_the_left" -> R.drawable.narrow_road_on_the_left
+                "uneven_road" -> R.drawable.uneven_road
+                "obstacle_on_the_road" -> R.drawable.obstacle_on_the_road
+                "children_present" -> R.drawable.children_present
+                "no_left_or_right_turn" -> R.drawable.no_left_or_right_turn
+                "no_straight_and_right_turn" -> R.drawable.no_straight_and_right_turn
                 "speed_limit_50" -> R.drawable.speed_limit_50
                 "speed_limit_60" -> R.drawable.speed_limit_60
-                "slow_down" -> R.drawable.slow_down
-                "no_right_turn" -> R.drawable.no_right_turn
+                "speed_limit_80" -> R.drawable.speed_limit_80
+                "speed_limit_40" -> R.drawable.speed_limit_40
+                "left_turn" -> R.drawable.left_turn
+                "go_straight" -> R.drawable.go_straight
+                "no_parking" -> R.drawable.no_parking
+                "no_u_turn_for_cars" -> R.drawable.no_u_turn_for_cars
+                "level_crossing_with_barriers" -> R.drawable.level_crossing_with_barriers
+                "no_u_turn_and_no_left_turn" -> R.drawable.no_u_turn_and_no_left_turn
+                "speed_bumps_ahead" -> R.drawable.speed_bumps_ahead
                 else -> createTransparentBitmap() // Dùng bitmap trong suốt nếu không tìm thấy biển báo
             }
 
@@ -295,10 +323,38 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
     private fun speakTrafficSign(signType: String) {
         val textToSpeak = when (signType) {
+            "pedestrian_crossing" -> "Vạch sang đường cho người đi bộ"
+            "equal_level_intersection" -> "Ngã tư cùng mức"
+            "no_entry" -> "Cấm vào"
+            "right_turn_only" -> "Chỉ được rẽ phải"
+            "intersection_with_a_non_priority_road" -> "Giao với đường không ưu tiên"
+            "no_left_turn" -> "Cấm rẽ trái"
+            "roundabout" -> "Bùng binh (vòng xuyến)"
+            "no_stopping_and_no_parking" -> "Cấm dừng và cấm đỗ xe"
+            "u_turn_allowed" -> "Được phép quay đầu xe"
+            "slow_down" -> "Giảm tốc độ"
+            "no_trucks_allowed" -> "Cấm xe tải"
+            "narrow_road_on_the_right" -> "Đường hẹp bên phải"
+            "no_u_turn" -> "Cấm quay đầu"
+            "no_u_turn_and_no_right_turn" -> "Cấm quay đầu và rẽ phải"
+            "no_cars_allowed" -> "Cấm ô tô"
+            "narrow_road_on_the_left" -> "Đường hẹp bên trái"
+            "uneven_road" -> "Đường mấp mô"
+            "obstacle_on_the_road" -> "Chướng ngại vật trên đường"
+            "children_present" -> "Có trẻ em"
+            "no_left_or_right_turn" -> "Cấm rẽ trái và rẽ phải"
+            "no_straight_and_right_turn" -> "Cấm đi thẳng và rẽ phải"
             "speed_limit_50" -> "Giới hạn tốc độ 50 km/h"
             "speed_limit_60" -> "Giới hạn tốc độ 60 km/h"
-            "slow_down" -> "Giảm tốc độ"
-            "no_right_turn" -> "Cấm rẽ phải"
+            "speed_limit_80" -> "Giới hạn tốc độ 80 km/h"
+            "speed_limit_40" -> "Giới hạn tốc độ 40 km/h"
+            "left_turn" -> "Rẽ trái"
+            "go_straight" -> "Đi thẳng"
+            "no_parking" -> "Cấm đỗ xe"
+            "no_u_turn_for_cars" -> "Cấm ô tô quay đầu"
+            "level_crossing_with_barriers" -> "Giao cắt có rào chắn"
+            "no_u_turn_and_no_left_turn" -> "Cấm quay đầu và rẽ trái"
+            "speed_bumps_ahead" -> "Gờ giảm tốc phía trước"
             else -> "Biển báo không xác định"
         }
         speakOut(textToSpeak)
