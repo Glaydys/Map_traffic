@@ -44,6 +44,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -92,12 +93,13 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     private val HIGH_PASS_FILTER_FREQUENCY = 100.0
 
     lateinit var userLocation: String
-    lateinit var user_form_trafficsign: LatLng
     val drawnMarkers = mutableSetOf<Triple<Double, Double, String>>() // Chứa danh sách các biển báo đã hiển thị
     private var imageAnalyzer: ImageAnalysis? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var detector: Detector? = null
     private lateinit var cameraExecutor: ExecutorService
+    var nextPosition = RouteTracker.currentNextPosition ?: LatLng(10.835087, 106.639646)  // Nếu null, sử dụng vị trí mặc định
+    private lateinit var alertImageView: LinearLayout
 
     private var v1 = 0.0
     private var v2 = 0.0
@@ -136,6 +138,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
         editTextStart = findViewById(R.id.editTextStart)
         editTextDestination = findViewById(R.id.editTextDestination)
+        alertImageView = findViewById(R.id.alertImageView)
 
         editTextStart.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -184,46 +187,46 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             }
             override fun afterTextChanged(editable: Editable?) {}
         })
-        val speechLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == RESULT_OK) {
-                val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                matches?.let {
-                    if (it.isNotEmpty()) {
-                        val spokenText = it[0]
-                        if (isSettingStartPoint) {
-                            editTextStart.setText(spokenText)
-                            getAutoCompleteForVoiceStart(spokenText) // Gọi hàm tìm kiếm địa điểm bắt đầu bằng giọng nói
-                            isSettingStartPoint = false // Chuyển sang cài đặt điểm đến
-                        } else {
-                            editTextDestination.setText(spokenText)
-                            getAutoCompleteForVoiceDestination(spokenText) // Gọi hàm tìm kiếm địa điểm đến bằng giọng nói
-                        }
-                    }
-                }
-            } else {
-                Toast.makeText(this, "Không nhận diện được giọng nói!", Toast.LENGTH_SHORT).show()
-            }
-        }
-        speechToText = SpeechToText(this, speechLauncher)
-
-        // Khởi tạo TextToSpeech
-        textToSpeech = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val localeVN = Locale("vi", "VN")
-                val result = textToSpeech.setLanguage(localeVN)
-
-                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.e("TextToSpeech", "Ngôn ngữ Vietnamese không được hỗ trợ hoặc thiếu data.")
-                    Toast.makeText(this, "TTS không hỗ trợ ngôn ngữ Vietnamese", Toast.LENGTH_SHORT).show()
-                } else {
-                    Log.d("TextToSpeech", "TTS đã sẵn sàng và hỗ trợ ngôn ngữ Vietnamese.")
-                    startVirtualAssistant()
-                }
-            } else {
-                Log.e("TextToSpeech", "Khởi tạo TextToSpeech thất bại, status: $status")
-                Toast.makeText(this, "TTS không hoạt động", Toast.LENGTH_SHORT).show()
-            }
-        }
+//        val speechLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+//            if (result.resultCode == RESULT_OK) {
+//                val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+//                matches?.let {
+//                    if (it.isNotEmpty()) {
+//                        val spokenText = it[0]
+//                        if (isSettingStartPoint) {
+//                            editTextStart.setText(spokenText)
+//                            getAutoCompleteForVoiceStart(spokenText) // Gọi hàm tìm kiếm địa điểm bắt đầu bằng giọng nói
+//                            isSettingStartPoint = false // Chuyển sang cài đặt điểm đến
+//                        } else {
+//                            editTextDestination.setText(spokenText)
+//                            getAutoCompleteForVoiceDestination(spokenText) // Gọi hàm tìm kiếm địa điểm đến bằng giọng nói
+//                        }
+//                    }
+//                }
+//            } else {
+//                Toast.makeText(this, "Không nhận diện được giọng nói!", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//        speechToText = SpeechToText(this, speechLauncher)
+//
+//        // Khởi tạo TextToSpeech
+//        textToSpeech = TextToSpeech(this) { status ->
+//            if (status == TextToSpeech.SUCCESS) {
+//                val localeVN = Locale("vi", "VN")
+//                val result = textToSpeech.setLanguage(localeVN)
+//
+//                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+//                    Log.e("TextToSpeech", "Ngôn ngữ Vietnamese không được hỗ trợ hoặc thiếu data.")
+//                    Toast.makeText(this, "TTS không hỗ trợ ngôn ngữ Vietnamese", Toast.LENGTH_SHORT).show()
+//                } else {
+//                    Log.d("TextToSpeech", "TTS đã sẵn sàng và hỗ trợ ngôn ngữ Vietnamese.")
+//                    startVirtualAssistant()
+//                }
+//            } else {
+//                Log.e("TextToSpeech", "Khởi tạo TextToSpeech thất bại, status: $status")
+//                Toast.makeText(this, "TTS không hoạt động", Toast.LENGTH_SHORT).show()
+//            }
+//        }
 
         val assistantIcon: ImageView = findViewById(R.id.assistantIcon)
         assistantIcon.setOnClickListener {
@@ -255,21 +258,22 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
             override fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long) {
                 for (box in boundingBoxes) {
-//                    Log.d("Detector", "Nhận diện: ${box.clsName} - Độ tin cậy: ${box.cnf}")
+                    // Log.d("Detector", "${nextPosition}")
+                    // Log.d("Detector", "Nhận diện: ${box.clsName} - Độ tin cậy: ${box.cnf}")
 
                     // Kiểm tra độ tin cậy lớn hơn 0.7
                     if (box.cnf > 0.7) {
                         val signType = box.clsName
-                        val latitude = user_form_trafficsign.latitude
-                        val longitude = user_form_trafficsign.longitude
+                        var latitude = nextPosition.latitude
+                        var longitude = nextPosition.longitude
                         val markerKey = Triple(latitude, longitude, signType)
 
-                        Log.d("Detector", "Nhận diện: $signType - Độ tin cậy: ${box.cnf} - $user_form_trafficsign")
+                        Log.d("Detector", "Nhận diện: $signType - Độ tin cậy: ${box.cnf} - $nextPosition")
 
                         // Kiểm tra xem biển báo đã được vẽ chưa
                         if (!drawnMarkers.contains(markerKey)) {
                             showTrafficSignOnMap(latitude, longitude, signType)
-                            drawnMarkers.add(markerKey)
+                            drawnMarkers.add(Triple(latitude, longitude, signType))
                         }
                     }
                 }
@@ -284,18 +288,27 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                 "speed_limit_60" -> R.drawable.speed_limit_60
                 "slow_down" -> R.drawable.slow_down
                 "no_right_turn" -> R.drawable.no_right_turn
-                else ->R.drawable.icon_location
+                else -> createTransparentBitmap() // Dùng bitmap trong suốt nếu không tìm thấy biển báo
             }
 
-            val iconBitmap = BitmapFactory.decodeResource(resources, iconRes)
-            val iconFactory = IconFactory.getInstance(this)
-            val vietmapIcon = iconFactory.fromBitmap(iconBitmap) // Chuyển Bitmap thành Icon
+//            val iconBitmap = BitmapFactory.decodeResource(resources, iconRes as Int)
+//            val iconFactory = IconFactory.getInstance(this)
+//            val vietmapIcon = iconFactory.fromBitmap(iconBitmap) // Chuyển Bitmap thành Icon
+//
+//            vietMapGL.addMarker(
+//                MarkerOptions()
+//                    .position(LatLng(latitude, longitude))
+//                    .icon(vietmapIcon) // Đổi từ Bitmap sang Icon
+//            )
 
-            vietMapGL.addMarker(
-                MarkerOptions()
-                    .position(LatLng(latitude, longitude))
-                    .icon(vietmapIcon) // Đổi từ Bitmap sang Icon
-            )
+            // Hiển thị biển báo trong ImageView
+            if (iconRes != createTransparentBitmap()) {
+                val imageView = ImageView(this)
+                imageView.setImageResource(iconRes as Int)
+
+                // Thêm ImageView vào LinearLayout
+                alertImageView.addView(imageView)
+            }
         }
     }
 
@@ -673,7 +686,6 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     // Hàm cập nhật vị trí trên bản đồ
     private fun updateUserLocation(location: Location) {
         val userLatLng = LatLng(location.latitude, location.longitude)
-        user_form_trafficsign = userLatLng
         userLocation = "${location.latitude},${location.longitude}"
         vietMapGL.moveCamera(
             vn.vietmap.vietmapsdk.camera.CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0)
@@ -771,6 +783,16 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 
+    // Hàm tạo bitmap trong suốt
+    private fun createTransparentBitmap(): Bitmap {
+        // Tạo một bitmap có kích thước 1x1 với màu trong suốt
+        val width = 1
+        val height = 1
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(Color.TRANSPARENT) // Đặt màu nền là trong suốt
+        return bitmap
+    }
+
     private fun moveMarker(lat: Double, lng: Double, isStart: Boolean) {
         val latLng = LatLng(lat, lng)
         runOnUiThread {
@@ -831,4 +853,9 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         cameraExecutor.shutdown()
     }
     override fun onLowMemory() { super.onLowMemory(); mapView.onLowMemory() }
+}
+
+// Định nghĩa đối tượng Singleton
+object RouteTracker {
+    var currentNextPosition: LatLng? = null
 }

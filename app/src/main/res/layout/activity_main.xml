@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <include layout="@layout/fragment_recognize"/>
+<!--    <include layout="@layout/fragment_recognize"/>-->
 
     <EditText
         android:id="@+id/editTextStart"
@@ -42,6 +42,16 @@
         android:paddingLeft="15dp"
         android:background="@color/white"
         android:layout_below="@id/editTextDestination" />
+
+    <!-- ImageView để hiển thị hình ảnh -->
+    <LinearLayout
+        android:id="@+id/alertImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/editTextDestination"/>
 
     <ImageView
         android:id="@+id/assistantIcon"
