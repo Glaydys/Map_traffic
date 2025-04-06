@@ -120,9 +120,6 @@ object getRoute {
         if (index >= routePoints.size) return  // Dừng khi đến điểm cuối
 
         val nextPosition = routePoints[index]
-        RouteTracker.currentNextPosition = nextPosition
-        // Log giá trị để kiểm tra
-        Log.d("RouteTracker", "Current Position: ${RouteTracker.currentNextPosition}")
 
         // Di chuyển camera tới vị trí tiếp theo
         vietMapGL.animateCamera(
