@@ -8,14 +8,12 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -39,7 +37,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import vn.vietmap.vietmapsdk.annotations.IconFactory
 import android.speech.tts.TextToSpeech
-import java.util.Locale
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -52,7 +49,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import com.example.map.Constants.LABELS_PATH
 import com.example.map.Constants.MODEL_PATH
 import kotlinx.coroutines.*
-import vn.vietmap.vietmapsdk.annotations.MarkerOptions
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.PI
@@ -282,6 +278,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                 "right_turn_only" -> R.drawable.right_turn_only
                 "intersection_with_a_non_priority_road" -> R.drawable.intersection_with_a_non_priority_road
                 "no_left_turn" -> R.drawable.no_left_turn
+                "dangerous_turn" -> R.drawable.dangerous_turn
                 "roundabout" -> R.drawable.roundabout
                 "no_stopping_and_no_parking" -> R.drawable.no_stopping_and_no_parking
                 "u_turn_allowed" -> R.drawable.u_turn_allowed
@@ -326,6 +323,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             "pedestrian_crossing" -> "Vạch sang đường cho người đi bộ"
             "equal_level_intersection" -> "Ngã tư cùng mức"
             "no_entry" -> "Cấm vào"
+            "dangerous_turn" -> "Khúc cua nguy hiểm"
             "right_turn_only" -> "Chỉ được rẽ phải"
             "intersection_with_a_non_priority_road" -> "Giao với đường không ưu tiên"
             "no_left_turn" -> "Cấm rẽ trái"
