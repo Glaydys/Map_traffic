@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                 enableUserLocation()
             }
         }
-
+        alertImageView = findViewById(R.id.alertImageView)
         editTextStart = findViewById(R.id.editTextStart)
         editTextDestination = findViewById(R.id.editTextDestination)
 
@@ -305,16 +305,18 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                 "level_crossing_with_barriers" -> R.drawable.level_crossing_with_barriers
                 "no_u_turn_and_no_left_turn" -> R.drawable.no_u_turn_and_no_left_turn
                 "speed_bumps_ahead" -> R.drawable.speed_bumps_ahead
-                else -> createTransparentBitmap() // Dùng bitmap trong suốt nếu không tìm thấy biển báo
+                else -> null
             }
 
-            // Hiển thị biển báo trong ImageView
-            if (iconRes != createTransparentBitmap()) {
-                val imageView = ImageView(this)
-                imageView.setImageResource(iconRes as Int)
-                // Thêm ImageView vào LinearLayout
-                alertImageView.addView(imageView)
+            val imageView = ImageView(this)
+
+            if (iconRes != null) {
+                imageView.setImageResource(iconRes)
+            } else {
+                imageView.setImageBitmap(createTransparentBitmap())
             }
+
+            alertImageView.addView(imageView)
         }
     }
 
@@ -355,7 +357,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             "speed_bumps_ahead" -> "Gờ giảm tốc phía trước"
             else -> "Biển báo không xác định"
         }
-        speakOut(textToSpeak)
+//        speakOut(textToSpeak)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

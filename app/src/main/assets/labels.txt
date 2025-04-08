@@ -1,9 +1,9 @@
 pedestrian_crossing
-equal-level_intersection
+equal_level_intersection
 no_entry
 right_turn_only
 intersection
-intersection_with_a_non-priority_road
+intersection_with_a_non_priority_road
 dangerous_turn
 no_left_turn
 bus_stop
@@ -49,6 +49,6 @@ no_parking
 containers_only
 no_u_turn_for_cars
 level_crossing_with_barriers
-no_u-turn_and_no_left_turn
+no_u_turn_and_no_left_turn
 right_turn_around
 speed_bumps_ahead
