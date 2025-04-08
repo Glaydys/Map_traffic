@@ -17,6 +17,7 @@ import java.io.IOException
 object getRoute {
     private val client = OkHttpClient()
     private val uiHandler = Handler(Looper.getMainLooper())
+    private val tomTomKey = "5Kcc0veRP7M6siOT2Pna86xXBkoDuUSx"
 
     fun fetchRoute(vietMapGL: VietMapGL, from: String, to: String, vehicle: String) {
         val urlFetchRoute =
@@ -47,7 +48,7 @@ object getRoute {
                                 val routePoints = decodePolyline(encodedPolyline)
                                 uiHandler.post {
                                     drawRoute(vietMapGL, routePoints)  // Vẽ tuyến đường
-                                    animateRoute(vietMapGL, routePoints) // Bắt đầu di chuyển
+                                    checkTrafficWithTomTom(routePoints, vietMapGL)
                                 }
                             } else {
                                 Log.e("fetchRoute", "Không tìm thấy tuyến đường")
@@ -115,46 +116,66 @@ object getRoute {
         return poly
     }
 
-    // ⚡ Thêm hàm mô phỏng di chuyển theo tuyến đường
-    private fun animateRoute(vietMapGL: VietMapGL, routePoints: List<LatLng>, index: Int = 0) {
-        if (index >= routePoints.size) return  // Dừng khi đến điểm cuối
+    private fun checkTrafficWithTomTom(routePoints: List<LatLng>, vietMapGL: VietMapGL) {
+        for (i in 0 until routePoints.size - 1) {
+            val start = routePoints[i]
+            val end = routePoints[i + 1]
 
-        val nextPosition = routePoints[index]
+            val url = "https://api.tomtom.com/routing/1/calculateRoute/" +
+                    "${start.latitude},${start.longitude}:${end.latitude},${end.longitude}/json" +
+                    "?traffic=true&key=$tomTomKey"
 
-        // Di chuyển camera tới vị trí tiếp theo
-        vietMapGL.animateCamera(
-            CameraUpdateFactory.newLatLng(nextPosition),
-            2000 // Thời gian di chuyển giữa các điểm (đơn vị: milliseconds)
-        )
+            val request = Request.Builder().url(url).get().build()
 
-        // Xóa phần tuyến đường đã đi (từ điểm đầu đến điểm hiện tại)
-        vietMapGL.getStyle { style ->
-            val sourceId = "route-source"
-            val lineString = LineString.fromLngLats(routePoints.subList(index, routePoints.size).map {
-                Point.fromLngLat(it.longitude, it.latitude)
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e("TomTom", "Failed to fetch traffic: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!response.isSuccessful) {
+                            Log.e("TomTom", "HTTP ${response.code}")
+                            return
+                        }
+
+                        val body = response.body?.string() ?: return
+                        val json = JSONObject(body)
+                        val routes = json.optJSONArray("routes") ?: return
+                        val summary = routes.optJSONObject(0)?.optJSONObject("summary") ?: return
+                        val delay = summary.optInt("trafficDelayInSeconds", 0)
+
+                        val isCongested = delay > 20  // Delay > 20s thì coi là kẹt xe
+
+                        uiHandler.post {
+                            drawTrafficSegment(vietMapGL, start, end, isCongested)
+                        }
+                    }
+                }
             })
-
-            // Lấy hoặc tạo GeoJsonSource mới
-            val routeSource = style.getSourceAs<GeoJsonSource>(sourceId)
-                ?: GeoJsonSource(sourceId, FeatureCollection.fromFeature(Feature.fromGeometry(lineString)))
-                    .also { style.addSource(it) }
-
-            // Cập nhật lại GeoJsonSource với tuyến đường mới
-            routeSource.setGeoJson(FeatureCollection.fromFeature(Feature.fromGeometry(lineString)))
-
-            // Kiểm tra và thêm layer nếu chưa có
-            if (style.getLayer("route-layer") == null) {
-                val routeLayer = LineLayer("route-layer", sourceId).withProperties(
-                    PropertyFactory.lineColor("#007AFF"),  // Màu xanh dương
-                    PropertyFactory.lineWidth(5f)
-                )
-                style.addLayer(routeLayer)
-            }
         }
-
-        // Gọi tiếp tục di chuyển sau 2 giây
-        Handler(Looper.getMainLooper()).postDelayed({
-            animateRoute(vietMapGL, routePoints, index + 1)
-        }, 2000)
     }
+
+    private fun drawTrafficSegment(vietMapGL: VietMapGL, start: LatLng, end: LatLng, isCongested: Boolean) {
+        vietMapGL.getStyle { style ->
+            val id = "segment-${start.latitude}-${start.longitude}-${end.latitude}-${end.longitude}"
+
+            val lineString = LineString.fromLngLats(
+                listOf(
+                    Point.fromLngLat(start.longitude, start.latitude),
+                    Point.fromLngLat(end.longitude, end.latitude)
+                )
+            )
+
+            val source = GeoJsonSource(id, FeatureCollection.fromFeature(Feature.fromGeometry(lineString)))
+            style.addSource(source)
+
+            val layer = LineLayer(id, id).withProperties(
+                PropertyFactory.lineColor(if (isCongested) "#FF0000" else "#FFFF00"),
+                PropertyFactory.lineWidth(5f)
+            )
+            style.addLayer(layer)
+        }
+    }
+
 }
