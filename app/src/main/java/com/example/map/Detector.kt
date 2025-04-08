@@ -125,7 +125,6 @@ class Detector(
     private fun bestBox(array: FloatArray) : List<BoundingBox>? {
 
         val boundingBoxes = mutableListOf<BoundingBox>()
-
         for (c in 0 until numElements) {
             var maxConf = CONFIDENCE_THRESHOLD
             var maxIdx = -1
@@ -139,7 +138,6 @@ class Detector(
                 j++
                 arrayIdx += numElements
             }
-
             if (maxConf > CONFIDENCE_THRESHOLD) {
                 val clsName = labels[maxIdx]
                 val cx = array[c] // 0

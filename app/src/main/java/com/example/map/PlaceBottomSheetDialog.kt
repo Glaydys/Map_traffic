@@ -29,7 +29,7 @@ class PlaceBottomSheetDialog(
 ) : BottomSheetDialogFragment() {
 
     private lateinit var sharedPreferences: android.content.SharedPreferences
-    private var currentMarker: Marker? = null // Lưu trữ marker hiện tại
+    private var currentMarker: Marker? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,7 +60,7 @@ class PlaceBottomSheetDialog(
                 vietMapGL,
                 "$startLat,$startLng",
                 "$destinationLat,$destinationLng",
-                "motorcycle")
+                "car")
         }
     }
 
@@ -84,40 +84,8 @@ class PlaceBottomSheetDialog(
                 ), 3000
             )
 
-            drawArrow(startLatLng, bearingAngle)
             dismiss()
         }
-    }
-
-    private fun drawArrow(position: LatLng, bearing: Float) {
-        clearMap()
-        val iconFactory = IconFactory.getInstance(requireContext())
-        val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.arrow)
-        val rotatedBitmap = rotateBitmap(originalBitmap, bearing)
-        val icon = iconFactory.fromBitmap(rotatedBitmap)
-
-        val markerOptions = MarkerOptions()
-            .position(position)
-            .icon(icon)
-
-        currentMarker = vietMapGL.addMarker(markerOptions)
-
-        if (currentMarker != null) {
-            Log.d("PlaceBottomSheetDialog", "Đã thêm arrow marker tại: $position, Góc: $bearing")
-        } else {
-            Log.e("PlaceBottomSheetDialog", "Không thể thêm marker")
-        }
-    }
-
-    private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(angle)
-        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
-    }
-
-    private fun clearMap() {
-        currentMarker?.remove()
-        currentMarker = null
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

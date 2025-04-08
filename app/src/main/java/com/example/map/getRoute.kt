@@ -11,7 +11,6 @@ import vn.vietmap.vietmapsdk.style.layers.LineLayer
 import vn.vietmap.vietmapsdk.style.layers.PropertyFactory
 import vn.vietmap.vietmapsdk.style.sources.GeoJsonSource
 import com.mapbox.geojson.*
-import vn.vietmap.vietmapsdk.camera.CameraUpdateFactory
 import java.io.IOException
 
 object getRoute {
@@ -47,7 +46,7 @@ object getRoute {
                             if (encodedPolyline.isNotEmpty()) {
                                 val routePoints = decodePolyline(encodedPolyline)
                                 uiHandler.post {
-                                    drawRoute(vietMapGL, routePoints)  // Vẽ tuyến đường
+                                    drawRoute(vietMapGL, routePoints)
                                     checkTrafficWithTomTom(routePoints, vietMapGL)
                                 }
                             } else {
@@ -177,5 +176,4 @@ object getRoute {
             style.addLayer(layer)
         }
     }
-
 }

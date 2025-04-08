@@ -8,12 +8,14 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -37,6 +39,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import vn.vietmap.vietmapsdk.annotations.IconFactory
 import android.speech.tts.TextToSpeech
+import java.util.Locale
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -98,6 +101,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
     private var v1 = 0.0
     private var v2 = 0.0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Vietmap.getInstance(this)
@@ -181,46 +185,46 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             }
             override fun afterTextChanged(editable: Editable?) {}
         })
-//        val speechLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-//            if (result.resultCode == RESULT_OK) {
-//                val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-//                matches?.let {
-//                    if (it.isNotEmpty()) {
-//                        val spokenText = it[0]
-//                        if (isSettingStartPoint) {
-//                            editTextStart.setText(spokenText)
-//                            getAutoCompleteForVoiceStart(spokenText) // Gọi hàm tìm kiếm địa điểm bắt đầu bằng giọng nói
-//                            isSettingStartPoint = false // Chuyển sang cài đặt điểm đến
-//                        } else {
-//                            editTextDestination.setText(spokenText)
-//                            getAutoCompleteForVoiceDestination(spokenText) // Gọi hàm tìm kiếm địa điểm đến bằng giọng nói
-//                        }
-//                    }
-//                }
-//            } else {
-//                Toast.makeText(this, "Không nhận diện được giọng nói!", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//        speechToText = SpeechToText(this, speechLauncher)
-//
-//        // Khởi tạo TextToSpeech
-//        textToSpeech = TextToSpeech(this) { status ->
-//            if (status == TextToSpeech.SUCCESS) {
-//                val localeVN = Locale("vi", "VN")
-//                val result = textToSpeech.setLanguage(localeVN)
-//
-//                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-//                    Log.e("TextToSpeech", "Ngôn ngữ Vietnamese không được hỗ trợ hoặc thiếu data.")
-//                    Toast.makeText(this, "TTS không hỗ trợ ngôn ngữ Vietnamese", Toast.LENGTH_SHORT).show()
-//                } else {
-//                    Log.d("TextToSpeech", "TTS đã sẵn sàng và hỗ trợ ngôn ngữ Vietnamese.")
-//                    startVirtualAssistant()
-//                }
-//            } else {
-//                Log.e("TextToSpeech", "Khởi tạo TextToSpeech thất bại, status: $status")
-//                Toast.makeText(this, "TTS không hoạt động", Toast.LENGTH_SHORT).show()
-//            }
-//        }
+        val speechLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == RESULT_OK) {
+                val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                matches?.let {
+                    if (it.isNotEmpty()) {
+                        val spokenText = it[0]
+                        if (isSettingStartPoint) {
+                            editTextStart.setText(spokenText)
+                            getAutoCompleteForVoiceStart(spokenText) // Gọi hàm tìm kiếm địa điểm bắt đầu bằng giọng nói
+                            isSettingStartPoint = false // Chuyển sang cài đặt điểm đến
+                        } else {
+                            editTextDestination.setText(spokenText)
+                            getAutoCompleteForVoiceDestination(spokenText) // Gọi hàm tìm kiếm địa điểm đến bằng giọng nói
+                        }
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Không nhận diện được giọng nói!", Toast.LENGTH_SHORT).show()
+            }
+        }
+        speechToText = SpeechToText(this, speechLauncher)
+
+        // Khởi tạo TextToSpeech
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                val localeVN = Locale("vi", "VN")
+                val result = textToSpeech.setLanguage(localeVN)
+
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Log.e("TextToSpeech", "Ngôn ngữ Vietnamese không được hỗ trợ hoặc thiếu data.")
+                    Toast.makeText(this, "TTS không hỗ trợ ngôn ngữ Vietnamese", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.d("TextToSpeech", "TTS đã sẵn sàng và hỗ trợ ngôn ngữ Vietnamese.")
+                    startVirtualAssistant()
+                }
+            } else {
+                Log.e("TextToSpeech", "Khởi tạo TextToSpeech thất bại, status: $status")
+                Toast.makeText(this, "TTS không hoạt động", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         val assistantIcon: ImageView = findViewById(R.id.assistantIcon)
         assistantIcon.setOnClickListener {
@@ -305,7 +309,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                 "level_crossing_with_barriers" -> R.drawable.level_crossing_with_barriers
                 "no_u_turn_and_no_left_turn" -> R.drawable.no_u_turn_and_no_left_turn
                 "speed_bumps_ahead" -> R.drawable.speed_bumps_ahead
-                else -> null
+                else -> null // Dùng bitmap trong suốt nếu không tìm thấy biển báo
             }
 
             val imageView = ImageView(this)
@@ -321,11 +325,10 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     }
 
     private fun speakTrafficSign(signType: String) {
-        val textToSpeak = when (signType) {
+        val textToSpeak: String? = when (signType) {
             "pedestrian_crossing" -> "Vạch sang đường cho người đi bộ"
             "equal_level_intersection" -> "Ngã tư cùng mức"
             "no_entry" -> "Cấm vào"
-            "dangerous_turn" -> "Khúc cua nguy hiểm"
             "right_turn_only" -> "Chỉ được rẽ phải"
             "intersection_with_a_non_priority_road" -> "Giao với đường không ưu tiên"
             "no_left_turn" -> "Cấm rẽ trái"
@@ -355,9 +358,11 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             "level_crossing_with_barriers" -> "Giao cắt có rào chắn"
             "no_u_turn_and_no_left_turn" -> "Cấm quay đầu và rẽ trái"
             "speed_bumps_ahead" -> "Gờ giảm tốc phía trước"
-            else -> "Biển báo không xác định"
+            else -> null
         }
-//        speakOut(textToSpeak)
+        textToSpeak?.let {
+            speakOut(it) // 'it' ở đây chính là giá trị textToSpeak không null
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -612,7 +617,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         })
     }
 
-    //Hàm lấy vị trí hiện tại và đặt làm điểm đi
+    //Hàm lấy vị trí hiện tại đặt làm điểm đi
     @SuppressLint("MissingPermission")
     private fun getCurrentLocationForStartPoint() {
         if (ActivityCompat.checkSelfPermission(
@@ -704,7 +709,6 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     private fun speakOut(text: String) {
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
-
     private fun enableUserLocation() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
@@ -714,59 +718,66 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         }
         getUserLocation()
     }
+    val locationRequest = LocationRequest.create().apply {
+        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        interval = 5000
+        fastestInterval = 2000
+    }
 
+    val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            locationResult.locations.lastOrNull()?.let { location ->
+                val userLatLng = LatLng(location.latitude, location.longitude)
+                vietMapGL.moveCamera(
+                    vn.vietmap.vietmapsdk.camera.CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0)
+                )
+                vietMapGL.addMarker(
+                    vn.vietmap.vietmapsdk.annotations.MarkerOptions()
+                        .position(userLatLng)
+                        .title("Vị trí của tôi")
+                )
+            }
+        }
+    }
     @SuppressLint("MissingPermission")
     private fun getUserLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher
+            return
+        }
+
+
+//        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
-                if (location != null) {
-                    updateUserLocation(location)
-                } else {
-                    // Nếu lastLocation bị null, yêu cầu cập nhật vị trí mới
-                    requestNewLocation()
+                location?.let {
+                    val userLatLng = LatLng(it.latitude, it.longitude)
+                    Log.i("userLatLng","${userLatLng.latitude},${userLatLng.longitude}")
+                    val sharedPreferences = getSharedPreferences("my_prefs", MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.putString("userLatLng","${userLatLng.latitude},${userLatLng.longitude}")
+                    editor.apply()
+
+                    vietMapGL.moveCamera(
+                        vn.vietmap.vietmapsdk.camera.CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0)
+                    )
+
+                    vietMapGL.addMarker(
+                        vn.vietmap.vietmapsdk.annotations.MarkerOptions()
+                            .position(userLatLng)
+                            .title("Vị trí của tôi")
+                            .icon(IconFactory.getInstance(this).fromResource(R.drawable.icon_location))
+                    )
                 }
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener{e ->
                 Log.e("LocationError", "Lỗi khi lấy vị trí: ${e.message}")
             }
-    }
 
-    // Hàm cập nhật vị trí trên bản đồ
-    private fun updateUserLocation(location: Location) {
-        val userLatLng = LatLng(location.latitude, location.longitude)
-        userLocation = "${location.latitude},${location.longitude}"
-        vietMapGL.moveCamera(
-            vn.vietmap.vietmapsdk.camera.CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0)
-        )
-        vietMapGL.clear() // Xóa marker cũ để tránh chồng chéo
-        vietMapGL.addMarker(
-            vn.vietmap.vietmapsdk.annotations.MarkerOptions()
-                .position(userLatLng)
-                .title("Vị trí của tôi")
-                .icon(IconFactory.getInstance(this).fromResource(R.drawable.icon_location))
-        )
     }
-
-    // Nếu `lastLocation` bị null, yêu cầu cập nhật vị trí mới
-    @SuppressLint("MissingPermission")
-    private fun requestNewLocation() {
-        val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 5000
-            fastestInterval = 2000
-            numUpdates = 1
-        }
-        val locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.locations.lastOrNull()?.let { location ->
-                    updateUserLocation(location)
-                    fusedLocationClient.removeLocationUpdates(this)
-                }
-            }
-        }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-    }
-
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
