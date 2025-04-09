@@ -20,9 +20,3 @@ Dự án này được phát triển nhằm đáp ứng nhu cầu cấp thiết 
 •	Dẫn đường: Vietmap API
 •	Định vị: GPS
 
-5.	Mục tiêu
-   
-•	Tạo ra một trợ lý lái xe thông minh với khả năng nhận diện biển báo và hỗ trợ giọng nói.
-•	Tối ưu trải nghiệm người dùng bằng giao diện trực quan và các công nghệ hiện đại.
-•	Nâng cao an toàn giao thông, giảm thiểu rủi ro khi người lái xe phải thao tác tay trong quá trình điều khiển phương tiện.
-
