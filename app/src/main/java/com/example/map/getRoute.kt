@@ -11,6 +11,7 @@ import vn.vietmap.vietmapsdk.style.layers.LineLayer
 import vn.vietmap.vietmapsdk.style.layers.PropertyFactory
 import vn.vietmap.vietmapsdk.style.sources.GeoJsonSource
 import com.mapbox.geojson.*
+import vn.vietmap.vietmapsdk.camera.CameraUpdateFactory
 import java.io.IOException
 
 object getRoute {
@@ -39,14 +40,13 @@ object getRoute {
                     response.body?.string()?.let { responseBody ->
                         try {
                             val json = JSONObject(responseBody)
-                            val encodedPolyline = json.optJSONArray("paths")
-                                ?.optJSONObject(0)
-                                ?.optString("points", "") ?: ""
+                            val encodedPolyline = json.optJSONArray("paths")?.optJSONObject(0)?.optString("points", "") ?: ""
 
                             if (encodedPolyline.isNotEmpty()) {
                                 val routePoints = decodePolyline(encodedPolyline)
+                                Log.i("routePoint", routePoints.toString())
                                 uiHandler.post {
-                                    drawRoute(vietMapGL, routePoints)
+                                    drawRoute(vietMapGL, routePoints)  // Vẽ tuyến đường
                                     checkTrafficWithTomTom(routePoints, vietMapGL)
                                 }
                             } else {
@@ -144,10 +144,14 @@ object getRoute {
                         val summary = routes.optJSONObject(0)?.optJSONObject("summary") ?: return
                         val delay = summary.optInt("trafficDelayInSeconds", 0)
 
-                        val isCongested = delay > 20  // Delay > 20s thì coi là kẹt xe
+                        val congestionLevel = when {
+                            delay > 60 -> "heavy"
+                            delay > 20 -> "light"
+                            else -> "none"
+                        }
 
                         uiHandler.post {
-                            drawTrafficSegment(vietMapGL, start, end, isCongested)
+                            drawTrafficSegment(vietMapGL, start, end, congestionLevel)
                         }
                     }
                 }
@@ -155,7 +159,7 @@ object getRoute {
         }
     }
 
-    private fun drawTrafficSegment(vietMapGL: VietMapGL, start: LatLng, end: LatLng, isCongested: Boolean) {
+    private fun drawTrafficSegment(vietMapGL: VietMapGL, start: LatLng, end: LatLng, congestionLevel: String) {
         vietMapGL.getStyle { style ->
             val id = "segment-${start.latitude}-${start.longitude}-${end.latitude}-${end.longitude}"
 
@@ -166,14 +170,21 @@ object getRoute {
                 )
             )
 
+            val color = when (congestionLevel) {
+                "heavy" -> "#FF0000" // Đỏ
+                "light" -> "#FFFF00" // Vàng
+                else -> return@getStyle // Không vẽ nếu bình thường
+            }
+
             val source = GeoJsonSource(id, FeatureCollection.fromFeature(Feature.fromGeometry(lineString)))
             style.addSource(source)
 
             val layer = LineLayer(id, id).withProperties(
-                PropertyFactory.lineColor(if (isCongested) "#FF0000" else "#FFFF00"),
+                PropertyFactory.lineColor(color),
                 PropertyFactory.lineWidth(5f)
             )
             style.addLayer(layer)
         }
     }
+
 }

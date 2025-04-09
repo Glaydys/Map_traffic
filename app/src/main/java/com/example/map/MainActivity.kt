@@ -43,6 +43,7 @@ import java.util.Locale
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.camera.core.AspectRatio
@@ -52,6 +53,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import com.example.map.Constants.LABELS_PATH
 import com.example.map.Constants.MODEL_PATH
 import kotlinx.coroutines.*
+import vn.vietmap.vietmapsdk.camera.CameraUpdateFactory
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.PI
@@ -134,6 +136,18 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                 enableUserLocation()
             }
         }
+
+        val tang : Button = findViewById(R.id.tang)
+        val giam : Button = findViewById(R.id.giam)
+        tang.setOnClickListener{
+            val currentZoom = vietMapGL.cameraPosition.zoom
+            vietMapGL.animateCamera(CameraUpdateFactory.zoomTo(currentZoom + 1))
+        }
+        giam.setOnClickListener{
+            val currentZoom = vietMapGL.cameraPosition.zoom
+            vietMapGL.animateCamera(CameraUpdateFactory.zoomTo(currentZoom - 1))
+        }
+
         alertImageView = findViewById(R.id.alertImageView)
         editTextStart = findViewById(R.id.editTextStart)
         editTextDestination = findViewById(R.id.editTextDestination)
@@ -185,6 +199,25 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
             }
             override fun afterTextChanged(editable: Editable?) {}
         })
+
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                val localeVN = Locale("vi", "VN")
+                val result = textToSpeech.setLanguage(localeVN)
+
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Log.e("TextToSpeech", "Ngôn ngữ Vietnamese không được hỗ trợ hoặc thiếu data.")
+                    Toast.makeText(this, "TTS không hỗ trợ ngôn ngữ Vietnamese", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.d("TextToSpeech", "TTS đã sẵn sàng và hỗ trợ ngôn ngữ Vietnamese.")
+                    startVirtualAssistant()
+                }
+            } else {
+                Log.e("TextToSpeech", "Khởi tạo TextToSpeech thất bại, status: $status")
+                Toast.makeText(this, "TTS không hoạt động", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         val speechLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == RESULT_OK) {
                 val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
@@ -207,24 +240,6 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         }
         speechToText = SpeechToText(this, speechLauncher)
 
-        // Khởi tạo TextToSpeech
-        textToSpeech = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val localeVN = Locale("vi", "VN")
-                val result = textToSpeech.setLanguage(localeVN)
-
-                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.e("TextToSpeech", "Ngôn ngữ Vietnamese không được hỗ trợ hoặc thiếu data.")
-                    Toast.makeText(this, "TTS không hỗ trợ ngôn ngữ Vietnamese", Toast.LENGTH_SHORT).show()
-                } else {
-                    Log.d("TextToSpeech", "TTS đã sẵn sàng và hỗ trợ ngôn ngữ Vietnamese.")
-                    startVirtualAssistant()
-                }
-            } else {
-                Log.e("TextToSpeech", "Khởi tạo TextToSpeech thất bại, status: $status")
-                Toast.makeText(this, "TTS không hoạt động", Toast.LENGTH_SHORT).show()
-            }
-        }
 
         val assistantIcon: ImageView = findViewById(R.id.assistantIcon)
         assistantIcon.setOnClickListener {
@@ -398,7 +413,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
                     if (rms > NOISE_THRESHOLD) {
                         Log.d("Audio", "RMS: $rms")
                     } else {
-//                        Log.d("Audio", "Tiếng ồn bị bỏ qua")
+                        Log.d("Audio", "Tiếng ồn bị bỏ qua")
                     }
                 }
             }
